@@ -21,9 +21,24 @@ const app = express();
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:3000', 'http://localhost:3002'], credentials: true }));
+app.use(cors({ 
+  origin: true, // Allow all origins in development or set specific ones
+  credentials: true 
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Ensure DB is initialized before handling requests
+app.use(async (req, res, next) => {
+  try {
+    const { initDB } = require('./db/database');
+    await initDB();
+    next();
+  } catch (err) {
+    console.error('Database initialization failed:', err);
+    res.status(500).json({ error: 'Internal server error: Database initialization failed' });
+  }
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -47,12 +62,18 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5000;
 
-initDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`\n🪡  Silkthread API running on http://localhost:${PORT}`);
-    console.log(`📦  Database initialized`);
+// Export app for Vercel
+module.exports = app;
+
+// Only listen locally, not on Vercel
+if (require.main === module) {
+  initDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`\n🪡  Silkthread API running on http://localhost:${PORT}`);
+      console.log(`📦  Database initialized`);
+    });
+  }).catch(err => {
+    console.error('Failed to initialize DB:', err);
+    process.exit(1);
   });
-}).catch(err => {
-  console.error('Failed to initialize DB:', err);
-  process.exit(1);
-});
+}

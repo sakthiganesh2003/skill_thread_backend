@@ -18,15 +18,10 @@ async function initializeFirebase() {
 
     // Try to load from service account key file first
     const keyPath = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
-    if (keyPath) {
-      // Resolve path relative to backend root (2 levels up from src/db/)
-      const resolvedPath = path.resolve(__dirname, '../../', keyPath);
-
-      if (!fs.existsSync(resolvedPath)) {
-        throw new Error(`Firebase key not found at: ${resolvedPath}`);
-      }
-
-      const serviceAccount = require(resolvedPath);
+    const resolvedKeyPath = keyPath ? path.resolve(__dirname, '../../', keyPath) : null;
+    
+    if (resolvedKeyPath && fs.existsSync(resolvedKeyPath)) {
+      const serviceAccount = require(resolvedKeyPath);
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
       });
