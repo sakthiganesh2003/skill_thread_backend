@@ -26,8 +26,15 @@ async function initializeFirebase() {
         credential: admin.credential.cert(serviceAccount),
       });
       console.log('✅ Firebase initialized with service account file');
+    } else if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+      // Option 2: Use a single JSON string (ideal for Vercel)
+      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      console.log('✅ Firebase initialized with JSON string');
     } else {
-      // Fallback to environment variables
+      // Option 3: Fallback to individual environment variables
       const serviceAccount = {
         projectId: process.env.FIREBASE_PROJECT_ID,
         privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
