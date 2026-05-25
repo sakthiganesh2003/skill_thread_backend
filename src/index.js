@@ -54,6 +54,9 @@ app.use('/api/customers', customerRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'Silkthread API' }));
 
+// Root route so Vercel doesn't show "Cannot GET /"
+app.get('/', (req, res) => res.json({ status: 'ok', message: 'Welcome to Silkthread API' }));
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
