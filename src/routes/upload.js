@@ -26,7 +26,7 @@ const upload = multer({
 });
 
 // POST /api/upload — admin or authenticated users
-router.post('/', authenticate, authorize('admin'), upload.single('image'), (req, res) => {
+router.post('/', authenticate, upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No image file provided' });
